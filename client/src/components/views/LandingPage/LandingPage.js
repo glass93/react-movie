@@ -10,18 +10,31 @@ import { Row } from "antd";
 function LandingPage() {
   const [Movies, setMovies] = useState([]);
   const [MainMovieImage, setMainMovieImage] = useState(null);
+  const [CurrentPage, setCurrentPage] = useState(0);
 
   useEffect(() => {
     const endpoint = `${API_URL}movie/popular?api_key=${API_KEY}&language=en-US&page=1`;
 
+    fetchMovies(endpoint);
+  }, []);
+
+  const fetchMovies = (endpoint) => {
     fetch(endpoint)
       .then((response) => response.json())
       .then((response) => {
-        setMovies([...response.results]);
+        setMovies([...Movies, ...response.results]);
         setMainMovieImage(response.results[0]);
-        console.log(response.results);
+        setCurrentPage(response.page);
       });
-  }, []);
+  };
+
+  const loadMoreItems = () => {
+    const endpoint = `${API_URL}movie/popular?api_key=${API_KEY}&language=en-US&page=${
+      CurrentPage + 1
+    }`;
+
+    fetchMovies(endpoint);
+  };
 
   return (
     <>
@@ -56,10 +69,9 @@ function LandingPage() {
                 </React.Fragment>
               ))}
           </Row>
-
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            <button>Load More</button>
-          </div>
+        </div>
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <button onClick={loadMoreItems}>Load More</button>
         </div>
       </div>
     </>
